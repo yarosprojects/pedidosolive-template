@@ -1,0 +1,39 @@
+---
+import { getSupabaseServerClient } from "../../../lib/supabase";
+
+const supabase = getSupabaseServerClient(Astro);
+if (Astro.request.method !== "POST") {
+    return Astro.redirect("/dashboard");
+}
+
+const data = await Astro.request.formData();
+const id = data.get("id")?.toString();
+
+if (!id) {
+    return Astro.redirect("/dashboard");
+}
+
+// Obteniendo estado actual
+const { data: order, error: fetchError } = await supabase
+    .from("orders")
+    .select("isDone")
+    .eq("id", id)
+    .single();
+
+if (fetchError || !order) {
+    console.error(fetchError);
+    return Astro.redirect("/dashboard");
+}
+
+// Actualizando al estado opuesto
+const { error: updateError } = await supabase
+    .from("orders")
+    .update({ isDone: !order.isDone })
+    .eq("id", id);
+
+if (updateError) {
+    console.error(updateError);
+}
+
+return Astro.redirect("/dashboard");
+---

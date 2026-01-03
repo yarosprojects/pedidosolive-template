@@ -1,0 +1,166 @@
+---
+import LogoutButton from "./LogoutButton.astro";
+
+const path = Astro.url.pathname;
+const user = Astro.locals.user;
+const isLogin = path.startsWith("/auth/login");
+const isPedido = path.includes("solicitar-pedido");
+---
+
+<header
+    class={`z-9999 fixed top-0 left-0 w-full flex flex-col items-center bg-white/15 backdrop-blur-2xl shadow-md shadow-black/10`}
+    aria-label="Capçalera de la pàgina"
+    id="header"
+>
+    <div
+        class="w-full md:max-w-6xl mx-auto flex flex-row justify-between items-center"
+    >
+        <div class="p-2">
+            <a href="/">
+                <img src="/joanolivesl-logotip.png" alt="Logotip" class="w-auto h-10" />
+            </a>
+        </div>
+
+        <!-- <div class="p-2 flex flex-col"></div> -->
+        { !user ? (
+            <div class="hidden md:flex">
+                {
+                    !isLogin ? (
+                        <div class="flex items-center gap-2">
+                            <a
+                                href="/auth/login"
+                                class="relative text-sm rounded-lg hover:bg-gray-500/10 p-2 transition-all text-black/70 hover:text-black/80 flex items-center gap-1 md:gap-2 cursor-pointer"
+                                transition:name="login"
+                            >
+                                <i class="icon-[lucide--lock]" />
+                                Acceso restringido
+                            </a>
+        
+                            { isPedido && <div class="w-px h-4 bg-black/50"></div> }
+        
+                            {isPedido && (
+                                <a
+                                    href="/"
+                                    class="relative rounded-lg hover:bg-gray-500/10 p-2 transition-all text-black/70 hover:text-black/80 flex items-center gap-1 text-sm"
+                                >
+                                    Volver a inicio
+                                </a>
+                            )}
+                        </div>
+                    ) : (
+                        <a
+                            href="/"
+                            class="relative rounded-lg hover:bg-gray-500/10 p-2 transition-all text-black/70 hover:text-black/80 flex items-center gap-1 text-sm"
+                        >
+                            Volver a inicio 
+                        </a>
+                    )
+                }
+            </div>
+        ) : (
+            <div class="relative md:mx-0 mx-2" transition:name="login">
+                <button type="button" class="flex flex-row justify-center items-center gap-2 hover:bg-gray-200/60 cursor-pointer px-3 py-1.5 md:px-2 md:py-1 transition-colors rounded-lg md:rounded-full border-none outline-none" id="profile-button">
+
+                    {/* AVATAR DE LA PERSONA AUTORIZADA */}
+                    <div
+                        id="profile-avatar"
+                        class="
+                            size-8
+                            rounded-full
+                            bg-[#013485]/10
+                            flex flex-row items-center justify-center
+                            font-semibold
+                            text-[#013485]
+                            text-sm
+                            uppercase
+                            gap-px
+                        "
+                    >
+                        <span>
+                            {user.name?.charAt(0)}
+                        </span>
+                        <span>
+                            {user.surname?.charAt(0)}
+                        </span>
+                    </div>
+
+                    {/* NOMBRE DE LA PERSONA AUTORIZADA */}
+                    <div class="flex">
+                        <span class="text-sm text-black/80">
+                            {user.name}
+                        </span>
+                    </div>
+                </button>
+
+                {/* PROFILE CONFIG */}
+                <div class="absolute top-full mt-1 right-0 min-w-40 w-full p-2 bg-white border border-black/10 rounded-xl shadow-md shadow-black/20 z-10000 hidden flex-col" aria-hidden="false" id="profile-config-container">
+
+                    <LogoutButton className="w-full bg-red-200 text-red-500 flex flex-row justify-center items-center px-2 py-1 rounded-lg border border-transparent gap-1 cursor-pointer hover:-translate-y-px transition-all hover:brightness-102">
+                        <i class="icon-[ic--outline-log-out] text-sm"></i>
+                        <span class="text-sm text-center">
+                            Cerrar sesión
+                        </span>
+                    </LogoutButton>
+                </div>
+            </div>
+        )}
+    </div>
+</header>
+
+{ user &&
+    <script is:inline>
+        document.addEventListener('astro:page-load', () => {
+            const profileButton = document.getElementById('profile-button');
+            const profileConfigContainer = document.getElementById('profile-config-container');
+
+            if(!profileButton || !profileConfigContainer) return;
+
+            let profileMenuIsOpen = false;
+
+            profileButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleProfileMenu();
+            });
+
+            document.addEventListener("click", (e) => {
+                if (
+                    profileMenuIsOpen &&
+                    !profileButton.contains(e.target) &&
+                    !profileConfigContainer.contains(e.target)
+                ) {
+                    closeProfileMenu();
+                }
+            });
+
+            function toggleProfileMenu() {
+                profileMenuIsOpen = !profileMenuIsOpen;
+
+                if (profileMenuIsOpen) {
+                    openProfileMenu();
+                } else {
+                    closeProfileMenu();
+                }
+            }
+
+            function openProfileMenu() {
+                profileButton.classList.add("bg-gray-200/60");
+                profileConfigContainer.classList.remove("hidden");
+                profileConfigContainer.classList.add(
+                    "animate-fade-in-down",
+                    "animate-duration-300"
+                );
+            }
+
+            function closeProfileMenu() {
+                profileMenuIsOpen = false;
+                profileButton.classList.remove("bg-gray-200/60");
+                profileConfigContainer.classList.add("hidden");
+                profileConfigContainer.classList.remove(
+                    "animate-fade-in-down",
+                    "animate-duration-300"
+                );
+            }
+
+        });
+    </script>
+}

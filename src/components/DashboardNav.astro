@@ -1,0 +1,32 @@
+---
+const path = Astro.url.pathname;
+const base_URL = "/dashboard";
+const LINKS = [
+    { name: "Pedidos", href: `${base_URL}` },
+    { name: "Agregar pedido", href: `${base_URL}/agregar-pedido` },
+];
+---
+
+<nav class="flex flex-col w-full md:w-7xl mx-auto my-5 sticky top-0" transition:name="pedidos_nav">
+    <div class="w-full flex flex-row justify-start items-center border-b border-b-black/10 py-1">
+        {LINKS.map((link) => {
+            const isActive = path === link.href;
+            return (
+                <a
+                    href={link.href}
+                    class={`relative text-sm font-medium rounded-md transition-all uppercase hover:bg-gray-500/10 p-2 ${isActive ? 'text-blue-500' : 'text-black'}`}
+                >
+                    {link.name}
+
+                    {isActive && (
+                        <div class={`absolute top-full mt-1 left-0 w-full h-0.5 ${isActive ? 'bg-blue-500' : 'bg-black'} rounded-full`} transition:name="link_hightlight"></div>
+                    )}
+                </a>
+            );
+        })}
+
+        <!-- <button type="button" class="text-black ml-auto">
+            Filtros
+        </button> -->
+    </div>
+</nav>
