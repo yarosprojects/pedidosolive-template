@@ -104,22 +104,101 @@ const isPedido = path.includes("solicitar-pedido");
                 </div>
             </div>
         )}
+        <div class="flex md:hidden">
+            <button
+                id="hamburger"
+                class="p-5 cursor-pointer mx-2 rounded-lg hover:bg-gray-500/10 transition-all flex flex-col min-w-10 justify-center items-center gap-1"
+                aria-label="Botó del menú mòbil"
+            >
+                <span class="hamburger-line top-1/2"></span>
+                <span class="hamburger-line top-1/2"></span>
+                <span class="hamburger-line top-1/2"></span>
+            </button>
+        </div>
     </div>
 </header>
 
-{ user &&
+{ !user &&
+<aside
+    id="aside"
+    class="fixed hidden inset-0 z-9998
+            bg-white backdrop-blur-xl
+            animate-fade-in animate-duration-300"
+>
+    <div
+        class="absolute inset-x-4 top-24 bottom-6
+            rounded-2xl
+            flex flex-col items-center justify-center gap-4
+            p-6"
+    >
+        { !isLogin ? (
+        <div class="flex flex-col items-stretch gap-3 w-full max-w-xs">
+            <a
+            href="/auth/login"
+            class="flex items-center justify-center gap-2
+                    text-base font-medium
+                    rounded-xl px-4 py-3
+                    bg-gray-500/10 hover:bg-gray-500/15
+                    text-black/80 transition"
+            >
+            <i class="icon-[lucide--lock]" />
+            Acceso restringido
+            </a>
+
+            {isPedido && (
+            <a
+                href="/"
+                class="flex items-center justify-center
+                    text-base font-medium
+                    rounded-xl px-4 py-3
+                    bg-gray-500/10 hover:bg-gray-500/15
+                    text-black/80 transition"
+            >
+                Volver a inicio
+            </a>
+            )}
+        </div>
+        ) : (
+        <a
+            href="/"
+            class="flex items-center justify-center
+                text-base font-medium
+                rounded-xl px-4 py-3
+                bg-gray-500/10 hover:bg-gray-500/15
+                text-black/80 transition"
+        >
+            Volver a inicio
+        </a>
+        )}
+    </div>
+</aside>
+}
+
+{ user ? (
     <script is:inline>
         document.addEventListener('astro:page-load', () => {
             const profileButton = document.getElementById('profile-button');
             const profileConfigContainer = document.getElementById('profile-config-container');
+            const $aside = document.querySelector('aside#aside');
+
 
             if(!profileButton || !profileConfigContainer) return;
 
             let profileMenuIsOpen = false;
-
+            let hamburgerMenuIsOpen = false;
             profileButton.addEventListener("click", (e) => {
                 e.stopPropagation();
                 toggleProfileMenu();
+            });
+
+            hamburger.addEventListener("click", (e) => {
+                e.stopPropagation();
+                hamburgerMenuIsOpen = !hamburgerMenuIsOpen;
+                if (hamburgerMenuIsOpen) {
+                    $aside.classList.remove("hidden");
+                } else {
+                    $aside.classList.add("hidden");
+                }
             });
 
             document.addEventListener("click", (e) => {
@@ -163,4 +242,76 @@ const isPedido = path.includes("solicitar-pedido");
 
         });
     </script>
+) : (
+    <script is:inline>
+        document.addEventListener('astro:page-load', () => {
+            const hamburger = document.getElementById('hamburger');
+            const $aside = document.querySelector('aside#aside');
+            const $header = document.getElementById('header');
+
+            if(!hamburger || !$aside || !$header) return;
+
+            let hamburgerMenuIsOpen = false;
+
+            hamburger.addEventListener("click", (e) => {
+                e.stopPropagation();
+                hamburgerMenuIsOpen = !hamburgerMenuIsOpen;
+                hamburger.classList.toggle('open', hamburgerMenuIsOpen);
+                hamburger.classList.toggle('bg-gray-500/10', hamburgerMenuIsOpen);
+                $header.classList.toggle('bg-white', hamburgerMenuIsOpen);
+                if (hamburgerMenuIsOpen) {
+                    $aside.classList.remove("hidden");
+                    $header.classList.remove("bg-whtee/15");
+                } else {
+                    $header.classList.add("bg-whtee/15");
+                    $aside.classList.add("hidden");
+                }
+            });
+
+            document.addEventListener("click", (e) => {
+                if (
+                    hamburgerMenuIsOpen &&
+                    !hamburger.contains(e.target) &&
+                    !$aside.contains(e.target)
+                ) {
+                    hamburgerMenuIsOpen = false;
+                    $aside.classList.add("hidden");
+                }
+            });
+        });
+    </script>
+)
 }
+
+<style>
+    .hamburger-line {
+        position: absolute;
+        width: 24px;
+        height: 2px;
+        background: black;
+        border-radius: 999px;
+        transition: transform 0.3s ease, opacity 0.2s ease;
+    }
+
+    /* Estado cerrado */
+    .hamburger-line:nth-child(1) {
+        transform: translateY(-6px);
+    }
+    .hamburger-line:nth-child(3) {
+        transform: translateY(6px);
+    }
+
+    /* Estado abierto */
+    #hamburger.open .hamburger-line:nth-child(1) {
+        transform: rotate(45deg);
+    }
+
+    #hamburger.open .hamburger-line:nth-child(2) {
+        opacity: 0;
+    }
+
+    #hamburger.open .hamburger-line:nth-child(3) {
+        transform: rotate(-45deg);
+    }
+
+</style>
