@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@plugin '@midudev/tailwind-animations';
+@plugin "@iconify/tailwind4";
+
+@utility animate-width {
+    animation: widthAnimation 1s ease-in-out forwards;
+}
+
+@keyframes widthAnimation {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}

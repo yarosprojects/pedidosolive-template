@@ -1,0 +1,23 @@
+---
+import { getSupabaseServerClient } from "../../../lib/supabase";
+
+const supabase = getSupabaseServerClient(Astro);
+if (Astro.request.method !== "POST") {
+    return Astro.redirect("/dashboard");
+}
+
+const formData = await Astro.request.formData();
+const id = formData.get("id");
+
+if (!id) {
+    return Astro.redirect("/dashboard");
+}
+
+const { error } = await supabase.from("orders").delete().eq("id", id);
+
+if (error) {
+    console.error("Error eliminando pedido:", error);
+}
+
+return Astro.redirect("/dashboard");
+---
